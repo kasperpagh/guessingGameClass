@@ -25,6 +25,9 @@
             <div id="randomGuy" style="float: left">
 
             </div>
+            <input type="number" id="guess">
+            <button id="submitGuess">Klik her for at commite dit gæt</button>
+            <div id="response" style="background-color: red; float: right"></div>
         </div>
 
         <script>
@@ -32,6 +35,7 @@
 
                 var urlAll = "http://knowyourclass-plaul.rhcloud.com/api/all";
                 var urlRand = "http://knowyourclass-plaul.rhcloud.com/api/random";
+                var urlGame = "http://knowyourclass-plaul.rhcloud.com/api/guess/";
                 var fID;
                 var UfID;
                 var randomGuy;
@@ -69,7 +73,7 @@
                 var getRandom = function ()
                 {
                     var ajaxRequest = new XMLHttpRequest();
-                    
+
                     ajaxRequest.onreadystatechange = function ()
                     {
                         if (ajaxRequest.readyState == 4 && ajaxRequest.status == 200)
@@ -77,6 +81,7 @@
                             randomGuy = JSON.parse(ajaxRequest.responseText);
 
                             $("#randomGuy").text(randomGuy.description);
+                            UfID = randomGuy._id;
 
                         }
                     };
@@ -85,8 +90,39 @@
                 };
                 $("#getGame").click(function ()
                 {
+                    $("#response").html("");
                     getRandom();
+                    urlGame = "http://knowyourclass-plaul.rhcloud.com/api/guess/";
                 });
+
+                var guessing = function ()
+                {
+                    var ajaxRequest = new XMLHttpRequest();
+                    fID = $("#guess").val();
+                    urlGame = urlGame.concat(fID + "/" + UfID);
+                    ajaxRequest.onreadystatechange = function ()
+                    {
+                        if (ajaxRequest.readyState == 4 && ajaxRequest.status == 200)
+                        {
+                            var john = JSON.parse(ajaxRequest.responseText);
+                            console.log(john);
+                            if(john.status === "true")
+                            {
+                                $("#response").css("background-color", "green");
+                            }
+                            $("#response").text(john.status);
+                        }
+                    };
+                    console.log(urlGame);
+                    ajaxRequest.open("GET", urlGame, true);
+                    ajaxRequest.send();
+                };
+
+                $("#submitGuess").click(function ()
+                {
+                    guessing();
+                });
+
             });
 
 
